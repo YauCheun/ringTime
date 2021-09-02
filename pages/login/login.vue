@@ -4,7 +4,7 @@
 		<!-- 顶框 -->
 		<view class="top-bar">
 			<view class="top-bar-right">
-				<view class="text">
+				<view class="text" @tap="toRegister">
 					注册
 				</view>
 			</view>
@@ -21,13 +21,13 @@
 			</view>
 			<view class="inputs">
 				<input type="text" placeholder="用户名/邮箱" class="user"
-					placeholder-style="color: #aaa;font-weight: 400;" />
+					placeholder-style="color: #aaa;font-weight: 400;" @input="getUser"/>
 				<view class="line"></view>
 				<input type="password" placeholder="密码" class="password"
-					placeholder-style="color: #aaa;font-weight: 400;" />
+					placeholder-style="color: #aaa;font-weight: 400;" @input="getPassword"/>
 				<view class="line"></view>
 			</view>
-			<view class="submit">登录</view>
+			<view class="submit" @tap="login">登录</view>
 			<view class="tips">用户名或密码错误</view>
 		</view>
 	</view>
@@ -35,7 +35,36 @@
 
 <script>
 	export default {
+		data() {
+			return {
+				user: '',
+				pwd: '',
+			}
+		},
+		methods: {
+			//跳转注册页面
+			toRegister() {
+				uni.navigateTo({
+					url: "../register/register",
+				})
+			},
+			getUser(e) {
+				this.user = e.detail.value;
+				// console.log(this.user);
+			},
+			getPassword(e) {
+				this.pwd = e.detail.value;
+				// console.log(this.pwd);
+			},
 
+			login(e) {
+				// console.log(this.user);
+				// console.log(this.pwd);
+				if (this.user && this.pwd) {
+					console.log("提交成功");
+				}
+			}
+		}
 	}
 </script>
 

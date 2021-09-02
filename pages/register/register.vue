@@ -6,18 +6,18 @@
 			<view class="top-bar-left" @tap="toLogin">
 				<image class="back-img" src="../../static/images/common/back.png" mode=""></image>
 			</view>
-			<view class="top-bar-right">
+			<!-- <view class="top-bar-right">
 				<view class="text">
 					注册
 				</view>
-			</view>
+			</view> -->
 		</view>
 		<view class="logo">
 			<image src="../../static/images/sign/logo.png"></image>
 		</view>
 		<view class="main">
 			<view class="title">
-				登录
+				注册
 			</view>
 			<view class="inputs">
 				<!-- 用户名输入框 -->
