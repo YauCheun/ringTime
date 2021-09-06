@@ -69,30 +69,31 @@
 </script>
 
 <style lang="scss">
-	.top-bar {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 88rpx;
-		padding-top: var(--status-bar-height);
-		background-color: $uni-bg-color;
-		// box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
-		// border-bottom: 1px solid $uni-border-color;
-		z-index: 9999;
+	@import '../../commons/css/mycss.scss';
+	// .top-bar {
+	// 	position: fixed;
+	// 	top: 0;
+	// 	left: 0;
+	// 	width: 100%;
+	// 	height: 88rpx;
+	// 	padding-top: var(--status-bar-height);
+	// 	background-color: $uni-bg-color;
+	// 	// box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
+	// 	// border-bottom: 1px solid $uni-border-color;
+	// 	z-index: 9999;
 
-		.top-bar-right {
-			float: right;
-			padding-right: 32rpx;
+	// 	.top-bar-right {
+	// 		float: right;
+	// 		padding-right: 32rpx;
 
-			.text {
-				font-size: $uni-font-size-lg;
-				font-weight: 500;
-				color: $uni-text-color;
-				line-height: 88rpx;
-			}
-		}
-	}
+	// 		.text {
+	// 			font-size: $uni-font-size-lg;
+	// 			font-weight: 500;
+	// 			color: $uni-text-color;
+	// 			line-height: 88rpx;
+	// 		}
+	// 	}
+	// }
 
 	.logo {
 		position: absolute;

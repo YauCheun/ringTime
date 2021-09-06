@@ -17,10 +17,24 @@
 		}, {
 			"path": "pages/register/register",
 			"style": {
-			// 	"navigationBarTitleText": "",
+				// 	"navigationBarTitleText": "",
 				"navigationStyle": "custom",
 				"enablePullDownRefresh": false
 			}
+		}, {
+			"path": "pages/search/search",
+			"style": {
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/userhome/userhome",
+			"style": {
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+			}
+
 		}
 	],
 	"globalStyle": {

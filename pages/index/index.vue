@@ -14,7 +14,7 @@
 				<view class="top-bar-search">
 					<image src="../../static/images/index/search.png"></image>
 				</view>
-				<view class="top-bar-add">
+				<view class="top-bar-add" @tap="toSearch">
 					<image src="../../static/images/index/add.png"></image>
 				</view>
 			</view>
@@ -78,9 +78,14 @@
 				this.friends = data.friends()
 			},
 			// 格式化时间
-			changeTime(time){
+			changeTime(time) {
 				return utils.dateTime(time)
-			}
+			},
+			toSearch() {
+				uni.navigateTo({
+					url: "../search/search",
+				})
+			},
 		}
 	}
 </script>
