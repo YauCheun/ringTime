@@ -35,6 +35,13 @@
 				"enablePullDownRefresh": false
 			}
 
+		}, {
+			"path": "pages/userdetails/userdetails",
+			"style": {
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+			}
+
 		}
 	],
 	"globalStyle": {
