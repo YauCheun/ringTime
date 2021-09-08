@@ -203,6 +203,18 @@
 				return Y + '-' + M + '-' + D + '-' + h + ':' + m;
 			}
 		},
+		onReady() {
+			this.getElementStyle();
+		},
+		// 计算属性
+		computed: {
+			startDate() {
+				return this.getDate('start');
+			},
+			endDate() {
+				return this.getDate('end');
+			}
+		},
 		methods: {
 			// 返回上一级
 			backOne() {
@@ -216,7 +228,7 @@
 				this.dataArr.sex = this.sexArray[this.index]
 			},
 			// 生日日期选择器
-			birthdayDateChange: function(e) {
+			birthdayDateChange(e) {
 				this.birthdayDate = e.target.value
 				this.dataArr.birthday = this.birthdayDate
 			},
@@ -308,18 +320,7 @@
 				}).exec();
 			},
 		},
-		onReady() {
-			this.getElementStyle();
-		},
-		// 计算属性
-		computed: {
-			startDate() {
-				return this.getDate('start');
-			},
-			endDate() {
-				return this.getDate('end');
-			}
-		},
+
 	}
 </script>
 

@@ -42,6 +42,13 @@
 				"enablePullDownRefresh": false
 			}
 
+		}, {
+			"path": "pages/friendrequest/friendrequest",
+			"style": {
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+			}
+
 		}
 	],
 	"globalStyle": {

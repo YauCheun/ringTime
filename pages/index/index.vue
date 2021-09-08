@@ -2,7 +2,7 @@
 	<view class="content">
 		<!-- 顶框 -->
 		<view class="top-bar">
-			<navigator url="../userdetials/Userdetials" hover-class="none" class="top-bar-left">
+			<navigator url="../userdetails/userdetails" hover-class="none" class="top-bar-left">
 				<image src="../../static/images/img/three.png"></image>
 			</navigator>
 
@@ -29,7 +29,7 @@
 					<image src="../../static/images/index/apply.png"></image>
 					<text class="tip">1</text>
 				</view>
-				<navigator url="../friendRequest/FriendRequest" hover-class="none" class="friend-list-right">
+				<navigator url="../friendrequest/friendrequest" hover-class="none" class="friend-list-right">
 					<view class="top">
 						<view class="name">好友申请</view>
 						<view class="time">12:12</view>
