@@ -22,7 +22,7 @@
 			<view class="inputs">
 				<!-- 用户名输入框 -->
 				<view class="userinput">
-					<input type="text" placeholder="请取个名字" class="user" @input="getUser" />
+					<input type="text" placeholder="请取个名字" class="user" @blur="matchUser" />
 					<view class="usertip" v-if="useremploy">用户名已有</view>
 					<view class="imgpd">
 						<image src="../../static/images/sign/right1.png" v-if="isuser"></image>
@@ -32,7 +32,7 @@
 				<view class="line"></view>
 				<!-- 邮箱输入框 -->
 				<view class="emailinput">
-					<input type="text" placeholder="请输入邮箱" class="email" @input="isEmail" />
+					<input type="text" placeholder="请输入邮箱" class="email" @blur="matchEmail" />
 					<view class="emailtip" v-if="emailemploy">邮箱被占用</view>
 					<view class="emailtip" v-if="invalid">该邮箱无效</view>
 					<view class="imgpd">
@@ -55,7 +55,7 @@
 				<view class="line"></view>
 			</view>
 
-			<view :class="['submit',{'isSubmit': isSubmit}]">注册</view>
+			<view :class="['submit',{'isSubmit': isSubmit}]" @tap="submit">注册</view>
 		</view>
 	</view>
 </template>
@@ -66,7 +66,7 @@
 			return {
 				type: 'password',
 				useremploy: false, //名字是否被占用
-				isuser: true, //名字是否可用
+				isuser: false, //名字是否可用
 				invalid: false, //邮箱是否有效
 				emailemploy: false, //邮箱是否被占用
 				isemail: false, //邮箱是否可用
@@ -79,21 +79,6 @@
 			}
 		},
 		methods: {
-			isEmail(e) {
-				let reg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/;
-				this.email = e.detail.value;
-				if (this.email.length > 0) {
-					if (reg.test(this.email)) {
-						console.log("正确");
-						this.isemail = true;
-						this.invalid = false;
-					} else {
-						console.log("不正确");
-						this.invalid = true;
-						this.isemail = false;
-					}
-				}
-			},
 			getPwd(e) {
 				this.pwd = e.detail.value;
 				this.isOk();
@@ -108,10 +93,54 @@
 					this.look = !this.look;
 				}
 			},
-			getUser(e) {
+			matchEmail(e) {
+				let reg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/;
+				this.email = e.detail.value;
+				if (this.email.length > 0 && reg.test(this.email)) {
+					this.$ajax.baseRequest({
+						url: '/signup/judge',
+						method: 'post'
+					}, {
+						data: this.email,
+						type: 'email'
+					}).then(res => {
+						let isExsit = res.result !== 0
+						if (isExsit) {
+							this.invalid = true;
+							this.isemail = false;
+						} else {
+							this.isemail = true;
+							this.invalid = false;
+
+						}
+						this.isOk();
+					})
+				} else {
+					this.invalid = true;
+					this.isemail = false;
+				}
+			},
+			matchUser(e) {
 				this.user = e.detail.value;
-				this.isOk();
-				// console.log(this.user);
+				if (this.user.length > 0) {
+					this.$ajax.baseRequest({
+						url: '/signup/judge',
+						method: 'post'
+					}, {
+						data: this.user,
+						type: 'name'
+					}).then(res => {
+						let isExsit = res.result !== 0
+						if (isExsit) {
+							this.useremploy = true
+							this.isuser = false
+						} else {
+							this.useremploy = false
+							this.isuser = true
+						}
+						this.isOk();
+					})
+				}
 			},
 			isOk() {
 				if (this.isuser && this.isemail && this.pwd.length > 5) {
@@ -123,6 +152,21 @@
 			toLogin() {
 				uni.navigateTo({
 					url: "../login/login",
+				})
+			},
+			submit() {
+				this.$ajax.baseRequest({
+					url: '/signup/add',
+					method: 'post'
+				}, {
+					email: this.email,
+					name: this.user,
+					psw: this.pwd
+				}).then(() => {
+					// 成功则跳转到登录
+					uni.navigateTo({
+						url: "../login/login?user="+this.user,
+					})
 				})
 			}
 		}

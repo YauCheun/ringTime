@@ -20,7 +20,7 @@
 				您好，欢迎来到 RINGTIME ！
 			</view>
 			<view class="inputs">
-				<input type="text" placeholder="用户名/邮箱" class="user"
+				<input v-model="user" type="text" placeholder="用户名/邮箱" class="user"
 					placeholder-style="color: #aaa;font-weight: 400;" @input="getUser"/>
 				<view class="line"></view>
 				<input type="password" placeholder="密码" class="password"
@@ -39,6 +39,16 @@
 			return {
 				user: '',
 				pwd: '',
+			}
+		},
+		onLoad: function(e) {
+			if(e && e.user){
+				this.user = e.user
+				uni.showToast({
+					title:"注册成功请登录",
+					icon:'none',
+					duration:2000
+				})
 			}
 		},
 		methods: {
