@@ -21,14 +21,14 @@
 			</view>
 			<view class="inputs">
 				<input v-model="user" type="text" placeholder="用户名/邮箱" class="user"
-					placeholder-style="color: #aaa;font-weight: 400;" @input="getUser"/>
+					placeholder-style="color: #aaa;font-weight: 400;" />
 				<view class="line"></view>
-				<input type="password" placeholder="密码" class="password"
-					placeholder-style="color: #aaa;font-weight: 400;" @input="getPassword"/>
+				<input v-model="pwd" type="password" placeholder="密码" class="password"
+					placeholder-style="color: #aaa;font-weight: 400;" @input="isShowErr = false" />
 				<view class="line"></view>
 			</view>
 			<view class="submit" @tap="login">登录</view>
-			<view class="tips">用户名或密码错误</view>
+			<view v-if="isShowErr" class="tips">用户名或密码错误</view>
 		</view>
 	</view>
 </template>
@@ -39,15 +39,16 @@
 			return {
 				user: '',
 				pwd: '',
+				isShowErr: false
 			}
 		},
 		onLoad: function(e) {
-			if(e && e.user){
+			if (e && e.user) {
 				this.user = e.user
 				uni.showToast({
-					title:"注册成功请登录",
-					icon:'none',
-					duration:2000
+					title: "注册成功请登录",
+					icon: 'none',
+					duration: 2000
 				})
 			}
 		},
@@ -58,20 +59,37 @@
 					url: "../register/register",
 				})
 			},
-			getUser(e) {
-				this.user = e.detail.value;
-				// console.log(this.user);
-			},
-			getPassword(e) {
-				this.pwd = e.detail.value;
-				// console.log(this.pwd);
-			},
 
 			login(e) {
-				// console.log(this.user);
-				// console.log(this.pwd);
 				if (this.user && this.pwd) {
-					console.log("提交成功");
+					this.$ajax.baseRequest({
+						url: '/signin/login',
+						method: 'post'
+					}, {
+						data: this.user,
+						psw: this.pwd
+					}).then(res => {
+						// 成功则跳转到登录
+						if (res.success === false) {
+							this.isShowErr = true
+							uni.showToast({
+								title: res.resultmsg,
+								icon: 'none',
+								duration: 2000
+							})
+						} else {
+							try{
+								uni.setStorageSync('userinfo',res.data)
+								console.log(uni.getStorageSync('userinfo'))
+								this.$Router.push({ name: 'index'})
+								// uni.navigateTo({
+								// 	url: "../index/index",
+								// })
+							}catch(e){
+								console.log('数据存储失败！')
+							}
+						}
+					})
 				}
 			}
 		}

@@ -2,9 +2,12 @@
 	<view class="content">
 		<!-- 顶框 -->
 		<view class="top-bar">
-			<navigator url="../userdetails/userdetails" hover-class="none" class="top-bar-left">
-				<image src="../../static/images/img/three.png"></image>
-			</navigator>
+			<view  class="top-bar-left" @tap="linkToDetail">
+				<image :src="imgurl"></image>
+			</view>
+<!-- 			<navigator url="../userdetails/userdetails" hover-class="none" class="top-bar-left">
+				<image :src="imgurl"></image>
+			</navigator> -->
 
 			<view class="top-bar-center">
 				<!-- <image src="../../static/images/index/logo.png"></image> -->
@@ -68,12 +71,24 @@
 		data() {
 			return {
 				friends: [],
+				imgurl: '',
+				uid: ''
 			}
 		},
 		onLoad() {
+			this.getUserInfo()
 			this.getFriend()
 		},
 		methods: {
+			getUserInfo() {
+				try {
+					let userinfo = uni.getStorageSync('userinfo')
+					this.uid = userinfo.id
+					this.imgurl = this.$ajax.baseUrl + '/upload/user/' + userinfo.imgurl
+				} catch (e) {
+					console.log('获取失败')
+				}
+			},
 			getFriend() {
 				this.friends = data.friends()
 			},
@@ -86,6 +101,9 @@
 					url: "../search/search",
 				})
 			},
+			linkToDetail(){
+				this.$Router.push({ name: 'userdetails'})
+			}
 		}
 	}
 </script>
