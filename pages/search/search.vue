@@ -121,7 +121,7 @@
 				});
 			},
 			toAddUser() {
-				this.$Router.push({
+				this.$Router.replace({
 					name: 'register',
 					query: {
 						user: this.user

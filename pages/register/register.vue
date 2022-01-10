@@ -164,7 +164,7 @@
 					psw: this.pwd
 				}).then(() => {
 					// 成功则跳转到登录
-					this.$Router.push({ name: 'login', params: { user: this.user }})
+					this.$Router.replace({ name: 'login', params: { user: this.user }})
 				})
 			}
 		}

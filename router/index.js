@@ -16,6 +16,10 @@ try {
 	router.beforeEach((to, from, next) => {
 		let info = uni.getStorageSync('userinfo')
 		const hasToken = info && info.token
+		if(to.path === '/pages/login/login'){
+			uni.clearStorage()
+			next()
+		}
 		if (!hasToken && !whiteList.includes(to.path)) {
 			next({
 				path: '/pages/login/login'
@@ -23,7 +27,6 @@ try {
 		} else {
 			next()
 		}
-		next()
 	})
 } catch (e) {}
 

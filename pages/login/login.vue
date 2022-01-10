@@ -56,7 +56,7 @@
 		methods: {
 			//跳转注册页面
 			toRegister() {
-				this.$Router.push({ name: 'register'})
+				this.$Router.replace({ name: 'register'})
 			},
 
 			login(e) {
@@ -80,7 +80,7 @@
 							try{
 								uni.setStorageSync('userinfo',res.data)
 								console.log(uni.getStorageSync('userinfo'))
-								this.$Router.push({ name: 'index'})
+								this.$Router.replace({ name: 'index'})
 							}catch(e){
 								console.log('数据存储失败！')
 							}

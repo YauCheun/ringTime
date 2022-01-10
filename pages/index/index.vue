@@ -27,33 +27,33 @@
 		<view class="friends">
 			<!-- 好友申请 -->
 
-			<view class="friend-list">
+			<view class="friend-list" @tap="$router.push({name: 'friendrequest'})">
 				<view class="friend-list-left">
 					<image src="../../static/images/index/apply.png"></image>
-					<text class="tip">1</text>
+					<text v-if="friendsApply.length" class="tip">{{friendsApply.length ? friendsApply.length : ''}}</text>
 				</view>
-				<navigator url="../friendrequest/friendrequest" hover-class="none" class="friend-list-right">
+				<view hover-class="none" class="friend-list-right">
 					<view class="top">
 						<view class="name">好友申请</view>
-						<view class="time">12:12</view>
+						<view v-if="friendsApply.length" class="time">{{changeTime(friendsApply[0].lastMsgTime)}}</view>
 					</view>
-					<view class="message">你有新的好友申请</view>
-				</navigator>
+					<view class="message">{{friendsApply.length ? friendsApply[0].lastMsgContent: '你有新的好友申请'}}</view>
+				</view>
 			</view>
 
 			<!-- 消息列表 -->
 			<view class="friend-list" v-for="(item,index) in friends" :keys="item.id">
 				<view class="friend-list-left">
-					<image :src="'../../static/images/img/'+item.imgurl" mode=""></image>
-					<text class="tip" v-if='item.tip>0&&item.tip<100'>{{item.tip}}</text>
-					<text class="tip" v-if='item.tip>99'>99+</text>
+					<image :src="$ajax.baseUrl + '/upload/user/' +item.imgurl" mode=""></image>
+					<text class="tip" v-if='item.msgUnReadCount>0&&item.msgUnReadCount<100'>{{item.msgUnReadCount}}</text>
+					<text class="tip" v-if='item.msgUnReadCount>99'>99+</text>
 				</view>
 				<view class="friend-list-right">
 					<view class="top">
 						<view class="name">{{item.name}}</view>
-						<view class="time">{{changeTime(item.time)}}</view>
+						<view class="time">{{changeTime(item.lastMsgTime)}}</view>
 					</view>
-					<view class="message">{{item.news}}</view>
+					<view class="message">{{item.lastMsgContent}}</view>
 				</view>
 			</view>
 
@@ -71,13 +71,17 @@
 		data() {
 			return {
 				friends: [],
+				friendsApply: [],
 				imgurl: '',
 				uid: ''
 			}
 		},
-		onLoad() {
-			this.getUserInfo()
-			this.getFriend()
+		async created() {
+			console.log(1111)
+			await this.getUserInfo()
+			await this.getFriend()
+			await this.getFriendApply()
+			// await this.getGroup()
 		},
 		methods: {
 			getUserInfo() {
@@ -90,17 +94,52 @@
 				}
 			},
 			getFriend() {
-				this.friends = data.friends()
+				// this.friends = data.friends()
+				this.$ajax.baseRequest({
+					url: '/index/getUserList',
+					method: 'post'
+				}, {
+					uid: this.uid,
+					state: '0'
+				}).then(res => {
+					// 成功则跳转到登录
+					this.friends = res.data
+				})
+			},
+			getFriendApply(){
+				this.$ajax.baseRequest({
+					url: '/index/getUserList',
+					method: 'post'
+				}, {
+					uid: this.uid,
+					state: '1'
+				}).then(res => {
+					// 成功则跳转到登录
+					this.friendsApply = res.data
+				})
+			},
+			getGroup() {
+				// this.friends = data.friends()
+				this.$ajax.baseRequest({
+					url: '/index/getGroupList',
+					method: 'post'
+				}, {
+					uid: this.uid,
+					state: '0'
+				}).then(res => {
+					// 成功则跳转到登录
+					this.friendsApply = res.data
+				})
 			},
 			// 格式化时间
 			changeTime(time) {
 				return utils.dateTime(time)
 			},
 			toSearch() {
-				this.$Router.push({ name: 'search'})
+				this.$Router.replace({ name: 'search'})
 			},
 			linkToDetail(){
-				this.$Router.push({ name: 'userdetails'})
+				this.$Router.replace({ name: 'userdetails'})
 			}
 		}
 	}
