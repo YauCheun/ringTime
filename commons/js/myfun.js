@@ -1,4 +1,4 @@
-export default{
+export default {
 	//首页时间转化
 	dateTime(e){
 		let old = new Date(e);

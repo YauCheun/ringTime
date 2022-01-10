@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:3000'; //此为测试地址,并非真实地址
+const baseUrl = 'http://192.168.0.118:3000'; //此为测试地址,并非真实地址
 // 定义基础请求路径(后端服务器地址)
 const baseRequest = (opts, data) => {
 	let hjr_token = "";

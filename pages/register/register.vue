@@ -164,9 +164,7 @@
 					psw: this.pwd
 				}).then(() => {
 					// 成功则跳转到登录
-					uni.navigateTo({
-						url: "../login/login?user="+this.user,
-					})
+					this.$Router.push({ name: 'login', params: { user: this.user }})
 				})
 			}
 		}

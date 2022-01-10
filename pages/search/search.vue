@@ -43,6 +43,7 @@
 
 <script>
 	import datas from '../../commons/js/datas.js'
+	import myfuns from '../../commons/js/myfun.js'
 	export default {
 		data() {
 			return {
@@ -52,16 +53,17 @@
 		},
 		methods: {
 			//获取搜索好友关键词
-			search(e) {
+			search:myfuns.debounce(function(e) {
 				this.userarr = []; //每次更新前需要清空
 				this.groupArr = [];
 				let searchval = e.detail.value;
 				if (searchval.length > 0) {
-					this.searchUser(searchval);
+					this.searchUser(searchval)
 				}
-			},
+			}, 500),
 			//寻找关键词匹配的好友
 			searchUser(e) {
+				console.log(1)
 				let arr = datas.friends();
 				let arr1 = datas.groups();
 				let exp = eval("/" + e + "/g");
@@ -119,6 +121,12 @@
 				});
 			},
 			toAddUser() {
+				this.$Router.push({
+					name: 'register',
+					query: {
+						user: this.user
+					}
+				})
 				uni.navigateTo({
 					url: "../userhome/Userhome",
 				})

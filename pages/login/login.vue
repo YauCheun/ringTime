@@ -42,9 +42,10 @@
 				isShowErr: false
 			}
 		},
-		onLoad: function(e) {
-			if (e && e.user) {
-				this.user = e.user
+		onLoad: function() {
+			const user =this.$Route.query.user
+			if (user) {
+				this.user = user
 				uni.showToast({
 					title: "注册成功请登录",
 					icon: 'none',
@@ -55,9 +56,7 @@
 		methods: {
 			//跳转注册页面
 			toRegister() {
-				uni.navigateTo({
-					url: "../register/register",
-				})
+				this.$Router.push({ name: 'register'})
 			},
 
 			login(e) {
@@ -82,9 +81,6 @@
 								uni.setStorageSync('userinfo',res.data)
 								console.log(uni.getStorageSync('userinfo'))
 								this.$Router.push({ name: 'index'})
-								// uni.navigateTo({
-								// 	url: "../index/index",
-								// })
 							}catch(e){
 								console.log('数据存储失败！')
 							}

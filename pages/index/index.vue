@@ -14,9 +14,9 @@
 			</view>
 
 			<view class="top-bar-right">
-				<view class="top-bar-search">
+			<!-- 	<view class="top-bar-search">
 					<image src="../../static/images/index/search.png"></image>
-				</view>
+				</view> -->
 				<view class="top-bar-add" @tap="toSearch">
 					<image src="../../static/images/index/add.png"></image>
 				</view>
@@ -97,9 +97,7 @@
 				return utils.dateTime(time)
 			},
 			toSearch() {
-				uni.navigateTo({
-					url: "../search/search",
-				})
+				this.$Router.push({ name: 'search'})
 			},
 			linkToDetail(){
 				this.$Router.push({ name: 'userdetails'})
