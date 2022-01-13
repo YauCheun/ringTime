@@ -12,15 +12,15 @@
 				<view class="user-show-tip" v-if="userarr.length>0">用户</view>
 				<view class="user-show-message" v-for="(item,index) in userarr" :key="index">
 					<!-- 设置点击跳转用户中心界面 -->
-					<navigator url="../userhome/userhome?id=aaa" hover-class="none">
-						<image :src="item.imgurl" mode=""></image>
-					</navigator>
-					<view class="username" v-html="item.name">
-						<view class="search-word"></view>
+					<view hover-class="none" @tap="topUserHome(item._id)">
+						<image :src="$ajax.baseUrl + '/upload/user/'+item.imgurl" mode=""></image>
+					</view>
+					<view class="username">
+						<view class="search-word">{{item.name}}</view>
 					</view>
 					<view class="email" v-html="item.email"></view>
-					<view class="operation-send" v-if="item.tip==1">发消息</view>
-					<view class="operation-add" v-if="item.tip==0" @tap="toAddUser">加好友</view>
+					<view class="operation-send" v-if="item.isFriend">发消息</view>
+					<view class="operation-add" v-else @tap="topUserHome(item._id)">加好友</view>
 				</view>
 				<view class="line" v-if="userarr.length>0"></view>
 
@@ -52,8 +52,17 @@
 			}
 		},
 		methods: {
+			topUserHome(fid) {
+				// url="../userhome/userhome?id=aaa"
+				this.$Router.push({
+					path: '/pages/userhome/userhome',
+					query: {
+						id: fid
+					}
+				})
+			},
 			//获取搜索好友关键词
-			search:myfuns.debounce(function(e) {
+			search: myfuns.debounce(function(e) {
 				this.userarr = []; //每次更新前需要清空
 				this.groupArr = [];
 				let searchval = e.detail.value;
@@ -63,31 +72,41 @@
 			}, 500),
 			//寻找关键词匹配的好友
 			searchUser(e) {
-				console.log(1)
-				let arr = datas.friends();
-				let arr1 = datas.groups();
-				let exp = eval("/" + e + "/g");
-				for (let i = 0; i < arr.length; i++) {
-					if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
-						this.isFriend(arr[i]);
-						arr[i].imgurl = '../../static/images/img/' + arr[i].imgurl;
-						arr[i].name = arr[i].name.replace(exp, "<span style='color:rgba(74,170,255,1);'>" + e +
-							"</span>");
-						arr[i].email = arr[i].email.replace(exp, "<span style='color:rgba(74,170,255,1);'>" + e +
-							"</span>");
-						this.userarr.push(arr[i]);
-					}
-				};
-				for (let i = 0; i < arr1.length; i++) {
-					if (arr1[i].groupName.search(e) != -1) {
-						this.isGroup(arr1[i]);
-						arr1[i].imgurl = '../../static/images/img/' + arr1[i].imgurl;
-						arr1[i].groupName = arr1[i].groupName.replace(exp, "<span style='color:rgba(74,170,255,1);'>" +
-							e +
-							"</span>");
-						this.groupArr.push(arr1[i]);
-					}
+				const params = {
+					keyword: e,
+					uid: uni.getStorageSync('userinfo').id
 				}
+				this.$ajax.baseRequest({
+					url: '/searchUser/search',
+					method: 'post'
+				}, params).then(res => {
+					this.userarr = res.data.friends.filter(item=>item._id !== params.uid)
+					// this.groupArr=res.data.groups
+				})
+				// let arr = datas.friends();
+				// let arr1 = datas.groups();
+				// let exp = eval("/" + e + "/g");
+				// for (let i = 0; i < arr.length; i++) {
+				// 	if (arr[i].name.search(e) != -1 || arr[i].email.search(e) != -1) {
+				// 		this.isFriend(arr[i]);
+				// 		arr[i].imgurl = '../../static/images/img/' + arr[i].imgurl;
+				// 		arr[i].name = arr[i].name.replace(exp, "<span style='color:rgba(74,170,255,1);'>" + e +
+				// 			"</span>");
+				// 		arr[i].email = arr[i].email.replace(exp, "<span style='color:rgba(74,170,255,1);'>" + e +
+				// 			"</span>");
+				// 		this.userarr.push(arr[i]);
+				// 	}
+				// };
+				// for (let i = 0; i < arr1.length; i++) {
+				// 	if (arr1[i].groupName.search(e) != -1) {
+				// 		this.isGroup(arr1[i]);
+				// 		arr1[i].imgurl = '../../static/images/img/' + arr1[i].imgurl;
+				// 		arr1[i].groupName = arr1[i].groupName.replace(exp, "<span style='color:rgba(74,170,255,1);'>" +
+				// 			e +
+				// 			"</span>");
+				// 		this.groupArr.push(arr1[i]);
+				// 	}
+				// }
 			},
 
 			//判断是否为好友
@@ -116,20 +135,21 @@
 			},
 			//返回首页
 			backOne() {
-				uni.navigateBack({
-					delta: 1
-				});
+				this.$Router.push({name: 'index'})
+				// uni.navigateBack({
+				// 	delta: 1
+				// });
 			},
 			toAddUser() {
-				this.$Router.replace({
-					name: 'register',
+				this.$Router.push({
+					path: '/userhome/Userhome',
 					query: {
 						user: this.user
 					}
 				})
-				uni.navigateTo({
-					url: "../userhome/Userhome",
-				})
+				// uni.navigateTo({
+				// 	url: "../userhome/Userhome",
+				// })
 			}
 
 		}

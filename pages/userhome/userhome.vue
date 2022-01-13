@@ -13,20 +13,22 @@
 		<view class="user-info">
 			<!-- 用户头像 -->
 			<view class="user-img">
-				<!-- <img src="../../static/images/img/b.png" :animation="animationData3" class="img-content"></img> -->
-				<image src="../../static/images/img/b.png" mode="" :animation="animationData3" class="img-content">
+				<image v-if="user.imgurl ==''" src="../../static/images/img/b.png" :animation="animationData3" class="img-content"></image>
+				<image v-else :src="$ajax.baseUrl + '/upload/user/'+ user.imgurl" mode="" :animation="animationData3" class="img-content">
 				</image>
 				<!-- 头像中性别 -->
-				<view class="user-sex" :style="{backgroundColor:sexBg}" :animation="animationData4">
+				<view class="user-sex" :style="{backgroundColor: user.sex === '女' ? '#FF5D5B': 'blue'}" :animation="animationData4">
 					<!-- <img src="../../static/images/userhome/female.png" mode=""></img> -->
-					<image src="../../static/images/userhome/female.png" mode=""></image>
+					<image v-if="user.sex === '女'" src="../../static/images/userhome/female.png" mode=""></image>
+					<image v-else-if="user.sex === '男'" src="../../static/images/userhome/male.png" mode=""></image>
+					<image v-else src="../../static/images/userhome/asexual.png" mode=""></image>
 				</view>
 			</view>
 			<!-- 用户文本信息 -->
 			<view class="user-text">
 				<view class="user-name">{{user.name}}</view>
-				<view class="nickname">昵称 : {{user.nick}}</view>
-				<view class="signature">{{user.intr}}</view>
+				<view class="nickname">{{user.nick ?user.nick : '' }}</view>
+				<view class="signature">{{user.sign ?user.sign : '这家伙什么都没留下'}}</view>
 			</view>
 			<!-- 添加好友按钮 -->
 		</view>
@@ -36,17 +38,17 @@
 		<!-- 背景渲染 -->
 		<view class="bg">
 			<view class="bg-white" :animation="animationData5"></view>
-			<image src="../../static/images/img/b.png" mode="aspectFill" class="bg-img"></image>
+			<image :src="$ajax.baseUrl + '/upload/user/'+user.imgurl" mode="aspectFill" class="bg-img"></image>
 		</view>
 		<!-- 添加好友样式 -->
 		<view class="add-msg" :style="{height:addHeight+'px',bottom:-+addHeight+'px'}" :animation="animationData">
 			<view class="name">{{user.name}}</view>
 			<view class="add-text">
-				<textarea :value="myname+'请求添加为好友'" placeholder="" maxlength="120" />
+				<textarea :value="myname+'请求添加为好友'" placeholder="" @input="inputVal" maxlength="120" />
 			</view>
 			<view class="add-operation" :animation="animationData2">
 				<view class="cancle" @tap="addFriendAnimate">取消</view>
-				<view class="send">发送</view>
+				<view class="send" @tap="addFriend">发送</view>
 			</view>
 		</view>
 	</view>
@@ -71,22 +73,68 @@
 				user: {
 					name: "测试用户名",
 					nick: "测试昵称",
-					intr: "我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,",
-
+					sign: "我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,我是签名,",
+imgurl:''
 				},
+				fid: '',
+				sendContent: ''
 
 			}
 		},
-
+		created() {
+			this.fid = this.$Route.query.id
+			console.log(this.$Route)
+			this.myname= uni.getStorageSync('userinfo').name
+			this.sendContent = this.myname +'请求添加为好友'
+			this.getFriendInfo()
+		},
 		onReady() {
 			this.getElementStyle();
 		},
 		methods: {
+			inputVal(e){
+				this.sendContent = e.detail.value
+			},
+			addFriend(){
+				const params = {
+					uid: uni.getStorageSync('userinfo').id,
+					fid: this.fid,
+					msg: this.sendContent
+				}
+				this.$ajax.baseRequest({
+					url: '/friend/applyFriend',
+					method: 'post'
+				}, params).then(res => {
+					if(res.status == 200) {
+						uni.showToast({
+							title: "发送成功",
+							icon: 'none',
+							duration: 2000
+						})
+						this.addFriendAnimate()
+					}
+					// this.groupArr=res.data.groups
+				})
+			},
+			getFriendInfo(){
+				const params = {
+					id: this.fid
+				}
+				this.$ajax.baseRequest({
+					url: '/user/getUserInfo',
+					method: 'post'
+				}, params).then(res => {
+					console.log(res)
+					this.user = res.data
+					// this.groupArr=res.data.groups
+				})
+			},
 			// 返回上一级
 			backOne() {
-				uni.navigateBack({
-					delta: 1
-				})
+				this.$Router.back(1)
+				// uni.navigateBack({
+				// 	delta: 1
+				// })
 			},
 			// 解决边缘模糊，
 			getElementStyle() {

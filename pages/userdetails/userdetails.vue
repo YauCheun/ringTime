@@ -218,9 +218,10 @@
 		methods: {
 			// 返回上一级
 			backOne() {
-				uni.navigateBack({
-					delta: 1
-				})
+				this.$Router.push({name: 'index'})
+				// uni.navigateBack({
+				// 	delta: 1
+				// })
 			},
 			// 性别选择器
 			sexPickerChange(e) {
