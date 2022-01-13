@@ -38,13 +38,13 @@
 				<view class="registerWord">{{dataArr.register | timeFormat}}</view>
 			</view>
 			<!-- 昵称 -->
-			<view class="nickname" @tap="editInfo(dataArr.nickname,false,editDataNameObj.nickname)">
+<!-- 			<view class="nickname" @tap="editInfo(dataArr.nickname,false,editDataNameObj.nickname)">
 				<view class="nicknameTitle">昵称</view>
 				<view class="nicknameWord">{{dataArr.nickname}}</view>
 				<view class="go">
 					<image src="../../static/images/common/more.png" mode=""></image>
 				</view>
-			</view>
+			</view> -->
 			<view class="sex">
 				<view class="sexTitle">性别</view>
 				<view class="sexWord">
@@ -131,14 +131,14 @@
 			return {
 				// 模拟数据
 				dataArr: {
-					cropFilePath: '../../static/images/img/d.png',
-					signature: '我是法外狂徒',
+					cropFilePath: '',
+					signature: '',
 					register: new Date(),
-					nickname: '张三',
+					nickname: '',
 					sex: '男',
 					birthday: '',
-					phoneNumber: '17671176439',
-					email: '2524339178@qq.com',
+					phoneNumber: '',
+					email: '',
 					password: '*****',
 				},
 				editDataNameObj: {
@@ -203,6 +203,9 @@
 				return Y + '-' + M + '-' + D + '-' + h + ':' + m;
 			}
 		},
+		created() {
+			this.getFriendInfo()
+		},
 		onReady() {
 			this.getElementStyle();
 		},
@@ -218,7 +221,9 @@
 		methods: {
 			// 返回上一级
 			backOne() {
-				this.$Router.push({name: 'index'})
+				this.$Router.push({
+					name: 'index'
+				})
 				// uni.navigateBack({
 				// 	delta: 1
 				// })
@@ -259,35 +264,80 @@
 					},
 				});
 			},
+			getFriendInfo(){
+				const params = {
+					id: uni.getStorageSync('userinfo').id
+				}
+				this.$ajax.baseRequest({
+					url: '/user/getUserInfo',
+					method: 'post'
+				}, params).then(res => {
+					this.dataArr= {
+						cropFilePath: this.$ajax.baseUrl + '/upload/user/'+ res.data.imgurl,
+						signature: res.data.sign || '',
+						register: new Date(res.data.createtime),
+						sex: res.data.sex || '',
+						birthday: res.data.birth || '',
+						phoneNumber: res.data.phone || '',
+						email: res.data.email || '',
+						password: '*****',
+					},
+					this.user = res.data
+					// this.groupArr=res.data.groups
+				})
+			},
 			confirm(e) {
 				this.tempFilePath = "";
 				this.dataArr.cropFilePath = e.detail.tempFilePath;
-
-				// #ifdef APP-PLUS||MP
+				const params = {
+					url: 'user',
+					name: new Date().getTime()
+				}
 				uni.uploadFile({
-					url: "后端地址上传图片接口地址",
-					filePath: this.cropFilePath,
-					name: "file",
+					url: "http://192.168.0.118:3000/file/upload",
+					name: "files",
+					file: myfuns.base64toFile(this.dataArr.cropFilePath, new Date().getTime()),
 					fileType: "image",
-					//formData:{},传递参数
-					success: (uploadFileRes) => {
-						var backstr = uploadFileRes.data;
+					formData: {
+						...params
+					}, //传递参数
+					success: (res) => {
+						// /user/updateUserInfo
+						// console.log(JSON.parse(res.data))
+						this.updateUserInfo('imgurl', JSON.parse(res.data)[0].filename)
+						this.dataArr.cropFilePath = this.$ajax.baseUrl + '/upload/user/'+ JSON.parse(res.data)[0].filename
 						//自定义操作
 					},
-
 					fail(e) {
 						console.log("this is errormes " + e.message);
-					},
+					}
 				});
-
-				// #endif
+			},
+			updateUserInfo(type,data,oldPsw='',){
+				this.$ajax.baseRequest({
+					url: '/user/updateUserInfo',
+					method: 'post'
+				}, {
+					id: uni.getStorageSync('userinfo').id,
+					type,
+					data
+				}).then(res => {
+					if(res.data == 200){
+						uni.showToast({
+							title: "更新成功",
+							icon: 'none',
+							duration: 2000
+						})
+					}
+					// this.groupArr=res.data.groups
+				})
 			},
 			cancel() {
 				console.log("canceled");
 				this.tempFilePath = "";
 			},
 			// 修改项弹框
-			editInfo(data, isPwd, editDataName) {
+			editInfo(data = '', isPwd = false, editDataName = '') {
 				if (!isPwd) {
 					this.editData = data
 				}
