@@ -77,7 +77,6 @@
 			}
 		},
 		async created() {
-			console.log(1111)
 			await this.getUserInfo()
 			await this.getFriend()
 			await this.getFriendApply()
@@ -133,6 +132,7 @@
 			},
 			// 格式化时间
 			changeTime(time) {
+				console.log(utils.dateTime(time))
 				return utils.dateTime(time)
 			},
 			toSearch() {

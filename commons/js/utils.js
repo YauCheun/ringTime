@@ -6,14 +6,14 @@ export default{
 		let d = old.getTime();
 		let h = old.getHours();
 		let m = old.getMinutes();
-		let Y = old.getYear();
+		let Y = old.getFullYear();
 		let M = old.getMonth();
 		let D = old.getDate();
 
 		let nd = now.getTime();
 		let nh = now.getHours();
 		let nm = now.getMinutes();
-		let nY = now.getYear();
+		let nY = now.getFullYear();
 		let nM = now.getMonth();
 		let nD = now.getDate();
 		
@@ -44,7 +44,7 @@ export default{
 			}
 			return '前天' + h + ':' + m;
 		}else{
-			return Y+'/'+M+'/'+D;
+			return Y+'/'+(M+1)+'/'+D;
 		}
 	},
 	dateTime1(e){

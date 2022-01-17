@@ -25,7 +25,7 @@
 				</view>
 			</view>
 			<!-- 签名 -->
-			<view class="signature" @tap="editInfo(dataArr.signature,false,editDataNameObj.signature)">
+			<view class="signature" @tap="editInfo(dataArr.signature,'sign', '签名')">
 				<view class="signatureTitle">签名</view>
 				<view class="signatureWord">{{dataArr.signature}}</view>
 				<view class="go">
@@ -70,21 +70,21 @@
 					<image src="../../static/images/common/more.png" mode=""></image>
 				</view>
 			</view>
-			<view class="phoneNumber" @tap="editInfo(dataArr.phoneNumber,false,editDataNameObj.phoneNumber)">
+			<view class="phoneNumber" @tap="editInfo(dataArr.phoneNumber,'phone', '电话')">
 				<view class="phoneNumberTitle">电话</view>
 				<view class="phoneNumberWord">{{dataArr.phoneNumber}}</view>
 				<view class="go">
 					<image src="../../static/images/common/more.png" mode=""></image>
 				</view>
 			</view>
-			<view class="email" @tap="editInfo(dataArr.email,false,editDataNameObj.email)">
+			<view class="email" @tap="editInfo(dataArr.email,'email', '邮箱')">
 				<view class="emailTitle">邮箱</view>
 				<view class="emailWord">{{dataArr.email}}</view>
 				<view class="go">
 					<image src="../../static/images/common/more.png" mode=""></image>
 				</view>
 			</view>
-			<view class="password" @tap="editInfo(dataArr.password,true,editDataNameObj.password)">
+			<view class="password" @tap="editInfo(dataArr.password,'psw', '密码')">
 				<view class="passwordTitle">密码</view>
 				<view class="passwordWord">{{dataArr.password}}</view>
 				<view class="go">
@@ -99,7 +99,7 @@
 		<!-- 弹出层 -->
 		<view class="edit" :style="{bottom:-+editHeight+'px'}" :animation="animationData">
 			<view class="edit-top-bar">
-				<view class="edit-top-cancle" @tap="editInfo">
+				<view class="edit-top-cancle" @tap="cancel">
 					取消
 				</view>
 				<view class="edit-top-title">
@@ -171,7 +171,8 @@
 				// 状态栏高度
 				StatusBar: '',
 				// 是否密码框
-				isPwd: false
+				isPwd: false,
+				type: ''
 			}
 		},
 		components: {
@@ -230,13 +231,15 @@
 			},
 			// 性别选择器
 			sexPickerChange(e) {
-				this.index = e.target.value
-				this.dataArr.sex = this.sexArray[this.index]
+				this.editData = e.target.value
+				this.type= 'sex'
+				this.editConfirm()
 			},
 			// 生日日期选择器
 			birthdayDateChange(e) {
-				this.birthdayDate = e.target.value
-				this.dataArr.birthday = this.birthdayDate
+				this.editData = e.target.value
+				this.type= 'birth'
+				this.editConfirm()
 			},
 			getDate(type) {
 				const date = new Date();
@@ -337,27 +340,58 @@
 				this.tempFilePath = "";
 			},
 			// 修改项弹框
-			editInfo(data = '', isPwd = false, editDataName = '') {
-				if (!isPwd) {
-					this.editData = data
-				}
+			editInfo(data, type, editDataName) {
+				this.type = type
+				this.editData = data
 				this.editDataName = editDataName
-				this.isEdit = !this.isEdit;
-				this.isPwd = isPwd
+				this.isPwd = type ==='psw' ? true : false
 				var animation = uni.createAnimation({
 					duration: 300,
 					timingFunction: "ease",
 				});
-				if (this.isEdit) {
-					animation.bottom(-this.StatusBar).step();
-				} else {
-					animation.bottom(-this.editHeight).step();
-				}
+				animation.bottom(-this.StatusBar).step();
+				// animation.bottom(-this.editHeight).step();
+				this.animationData = animation.export()
+			},
+			cancel(){
+				var animation = uni.createAnimation({
+					duration: 300,
+					timingFunction: "ease",
+				});
+				// animation.bottom(-this.StatusBar).step();
+				animation.bottom(-this.editHeight).step();
 				this.animationData = animation.export()
 			},
 			// 修改框确定
 			editConfirm() {
-				this.editInfo()
+				let params = {
+					id: uni.getStorageSync('userinfo').id,
+					type: this.type,
+					data: this.editData
+				}
+				if(this.type === 'psw'){
+					params = {...params,oldPsw: this.pwd}
+				}
+				this.$ajax.baseRequest({
+					url: '/user/updateUserInfo',
+					method: 'post'
+				}, params).then(res => {
+					if(res.status == 200){
+						uni.showToast({
+							title: "更新成功",
+							icon: 'none',
+							duration: 2000
+						})
+						this.cancel()
+						if(this.type === 'psw'){
+							this.$Router.replace({ name: 'login', params: { user: uni.getStorageSync('userinfo').name }})
+						}else {
+							this.getFriendInfo()
+						}
+						
+					}
+					// this.groupArr=res.data.groups
+				})
 				// console.log(this.dataArr)
 			},
 			// 获取页面高度

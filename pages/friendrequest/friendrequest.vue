@@ -18,26 +18,26 @@
 			<view class="requestInfo">
 				<!-- 请求处理 -->
 				<view class="requestManage">
-					<view class="requestRefuse">
+					<view class="requestRefuse" @tap="refuse(item.id)">
 						拒绝
 					</view>
-					<view class="requestAccept">
+					<view class="requestAccept" @tap="agree(item.id)">
 						同意
 					</view>
 				</view>
 				<!-- 请求人昵称，时间 -->
 				<view class="requestUser">
 					<view class="requestUserName">
-						{{item.requestUserName}}
+						{{item.name}}
 					</view>
 					<view class="requestTime">
-						2021-08-19
+						{{formatTime(item.sendtime)}}
 					</view>
 				</view>
 				<!-- 请求留言 -->
 				<view class="requestMessage">
 					<view class="requestMessageWord">
-						{{item.requestMessageWord}}
+						{{item.lastMsgContent}}
 					</view>
 				</view>
 			</view>
@@ -49,24 +49,73 @@
 
 <script>
 	import datas from '../../commons/js/datas.js'
-
+	import utils from '../../commons/js/utils.js'
 	export default {
 		data() {
 			return {
 				friendRequest: []
 			}
 		},
-		onLoad() {
+		created() {
 			this.getFriends();
 		},
+		onLoad() {
+		
+		},
 		methods: {
+			agree(fid){
+				this.$ajax.baseRequest({
+					url: '/friend/updateFriendState',
+					method: 'post'
+				}, {
+					uid: uni.getStorageSync('userinfo').id,
+					fid
+				}).then(res => {
+					// 成功则跳转到登录
+					if(res.status == 200) {
+						this.getFriends();
+					}
+				})
+			},
+			refuse(fid){
+				this.$ajax.baseRequest({
+					url: '/friend/forbidOrDelFriend',
+					method: 'post'
+				}, {
+					uid: uni.getStorageSync('userinfo').id,
+					fid
+				}).then(res => {
+					// 成功则跳转到登录
+					if(res.status == 200) {
+						this.getFriends();
+					}
+				})
+			},
+			formatTime(time){
+				return utils.dateTime(new Date(time))
+			},
 			// 获取添加好友请求信息
 			getFriends() {
-				this.friendRequest = datas.friedsRequest();
-				for (let i = 0; i < this.friendRequest.length; i++) {
-					this.friendRequest[i].imgurl = '../../static/images/img/' + this.friendRequest[i].imgurl;
-				}
-				console.log(this.friendRequest);
+				this.$ajax.baseRequest({
+					url: '/index/getUserList',
+					method: 'post'
+				}, {
+					uid: uni.getStorageSync('userinfo').id,
+					state: '1'
+				}).then(res => {
+					// 成功则跳转到登录
+					this.friendRequest = res.data.map(item=>{
+						return {
+							...item,
+							imgurl: this.$ajax.baseUrl + '/upload/user/' + item.imgurl
+						}
+					})
+				})
+				// this.friendRequest = datas.friedsRequest();
+				// for (let i = 0; i < this.friendRequest.length; i++) {
+				// 	this.friendRequest[i].imgurl = '../../static/images/img/' + this.friendRequest[i].imgurl;
+				// }
+				// console.log(this.friendRequest);
 			},
 			// 返回上一级
 			backOne() {
