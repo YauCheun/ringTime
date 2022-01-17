@@ -49,6 +49,13 @@
 				"enablePullDownRefresh": false
 			}
 
+		}, {
+			"path": "pages/chatroom/chatroom",
+			"style": {
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+			}
+
 		}
 	],
 	"globalStyle": {

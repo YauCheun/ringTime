@@ -50,5 +50,12 @@
 					title: '好友请求',
 				},
 			},
+			{
+				path: '/pages/chatroom/chatroom',
+				name: 'chatroom',
+				meta: {
+					title: '聊天室',
+				},
+			}
 		]
 		export default home

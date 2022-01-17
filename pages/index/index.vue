@@ -2,10 +2,10 @@
 	<view class="content">
 		<!-- 顶框 -->
 		<view class="top-bar">
-			<view  class="top-bar-left" @tap="linkToDetail">
+			<view class="top-bar-left" @tap="linkToDetail">
 				<image :src="imgurl"></image>
 			</view>
-<!-- 			<navigator url="../userdetails/userdetails" hover-class="none" class="top-bar-left">
+			<!-- 			<navigator url="../userdetails/userdetails" hover-class="none" class="top-bar-left">
 				<image :src="imgurl"></image>
 			</navigator> -->
 
@@ -14,7 +14,7 @@
 			</view>
 
 			<view class="top-bar-right">
-			<!-- 	<view class="top-bar-search">
+				<!-- 	<view class="top-bar-search">
 					<image src="../../static/images/index/search.png"></image>
 				</view> -->
 				<view class="top-bar-add" @tap="toSearch">
@@ -30,7 +30,8 @@
 			<view class="friend-list" @tap="$router.push({name: 'friendrequest'})">
 				<view class="friend-list-left">
 					<image src="../../static/images/index/apply.png"></image>
-					<text v-if="friendsApply.length" class="tip">{{friendsApply.length ? friendsApply.length : ''}}</text>
+					<text v-if="friendsApply.length"
+						class="tip">{{friendsApply.length ? friendsApply.length : ''}}</text>
 				</view>
 				<view hover-class="none" class="friend-list-right">
 					<view class="top">
@@ -42,10 +43,12 @@
 			</view>
 
 			<!-- 消息列表 -->
-			<view class="friend-list" v-for="(item,index) in friends" :keys="item.id">
+			<view class="friend-list" v-for="(item,index) in friends" :keys="item.id"
+				@tap="toChatRoom(item.id,item.imgurl,item.name)">
 				<view class="friend-list-left">
 					<image :src="$ajax.baseUrl + '/upload/user/' +item.imgurl" mode=""></image>
-					<text class="tip" v-if='item.msgUnReadCount>0&&item.msgUnReadCount<100'>{{item.msgUnReadCount}}</text>
+					<text class="tip"
+						v-if='item.msgUnReadCount>0&&item.msgUnReadCount<100'>{{item.msgUnReadCount}}</text>
 					<text class="tip" v-if='item.msgUnReadCount>99'>99+</text>
 				</view>
 				<view class="friend-list-right">
@@ -105,7 +108,7 @@
 					this.friends = res.data
 				})
 			},
-			getFriendApply(){
+			getFriendApply() {
 				this.$ajax.baseRequest({
 					url: '/index/getUserList',
 					method: 'post'
@@ -130,16 +133,30 @@
 					this.friendsApply = res.data
 				})
 			},
+			toChatRoom(id, imgurl, name) {
+				this.$Router.push({
+					path: '/pages/chatroom/chatroom',
+					query: {
+						id: id,
+						imgurl: imgurl,
+						name: name
+					}
+				})
+			},
 			// 格式化时间
 			changeTime(time) {
 				console.log(utils.dateTime(time))
 				return utils.dateTime(time)
 			},
 			toSearch() {
-				this.$Router.replace({ name: 'search'})
+				this.$Router.replace({
+					name: 'search'
+				})
 			},
-			linkToDetail(){
-				this.$Router.replace({ name: 'userdetails'})
+			linkToDetail() {
+				this.$Router.replace({
+					name: 'userdetails'
+				})
 			}
 		}
 	}
