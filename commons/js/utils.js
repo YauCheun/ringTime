@@ -53,14 +53,14 @@ export default{
 		let d = old.getTime();
 		let h = old.getHours();
 		let m = old.getMinutes();
-		let Y = old.getYear();
+		let Y = old.getFullYear();
 		let M = old.getMonth();
 		let D = old.getDate();
 	
 		let nd = now.getTime();
 		let nh = now.getHours();
 		let nm = now.getMinutes();
-		let nY = now.getYear();
+		let nY = now.getFullYear();
 		let nM = now.getMonth();
 		let nD = now.getDate();
 		
@@ -89,7 +89,7 @@ export default{
 				if(m<10){
 					m = '0' + m;
 				}
-			return M+'月'+D+'日'+h+':'+m;
+			return (M+1)+'月'+D+'日'+h+':'+m;
 		}else{
 			//大于今年
 			if(h<10){
@@ -98,7 +98,7 @@ export default{
 			if(m<10){
 				m = '0' + m;
 			}
-			return Y+'年'+M+'月'+D+'日'+h+':'+m;
+			return Y+'年'+(M+1)+'月'+D+'日'+h+':'+m;
 		}
 	},
 	

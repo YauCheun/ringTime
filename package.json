@@ -4,7 +4,8 @@
   "description": "## 技术栈  `uniapp` + `node.js` + `mangodb`",
   "main": "main.js",
   "dependencies": {
-    "uni-simple-router": "^1.5.5"
+    "uni-simple-router": "^1.5.5",
+    "weapp.socket.io": "^3.0.0"
   },
   "devDependencies": {},
   "scripts": {

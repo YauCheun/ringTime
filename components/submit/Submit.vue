@@ -25,12 +25,12 @@
 			</view>
 			<view class="more" :class="{displaynone:ismore}">
 				<view class="more-list">
-					<image src="../../static/images/submit/tp.png"></image>
-					<view class="more-list-title" @tap="sendImg('album')">图片</view>
+					<image src="../../static/images/submit/tp.png" @tap="sendImg('album')"></image>
+					<view class="more-list-title" >图片</view>
 				</view>
 				<view class="more-list">
-					<image src="../../static/images/submit/pz.png"></image>
-					<view class="more-list-title" @tap="sendImg('camera')">拍照</view>
+					<image src="../../static/images/submit/pz.png" @tap="sendImg('camera')"></image>
+					<view class="more-list-title" >拍照</view>
 				</view>
 				<view class="more-list" @tap="chooseLocation">
 					<image src="../../static/images/submit/dw.png"></image>
@@ -130,10 +130,11 @@
 				}else{
 					count = 1;
 				}
+				console.log(e)
 				uni.chooseImage({
-				    count: 6, //默认9
+				    count: count, //默认9
 				    sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
-				    sourceType: ['album'], //从相册选择
+				    sourceType: [e], //从相册选择
 				    success: (res) => {
 				        const filePaths = res.tempFilePaths;
 						for(let i=0;i<filePaths.length;i++){

@@ -23,10 +23,10 @@
 					<image src="../../static/images/common/loading.png" class="loading-img" :animation="animationData">
 					</image>
 				</view>
-				<view class="chat-ls" v-for="(item,index) in msgs" :key="index" :id="'msg'+item.tip">
-					<view class="chat-time" v-if="item.time!=''">{{changeTime(item.time)}}</view>
-					<view class="msg-m msg-left" v-if="item.id !='b'">
-						<image :src="item.imgurl" class="user-img"></image>
+				<view class="chat-ls" v-for="(item,index) in msgs" :key="index" :id="'msg'+item.id">
+					<view class="chat-time" v-if="item.sendtime!=''">{{changeTime(item.sendtime)}}</view>
+					<view class="msg-m msg-left" v-if="item.fromId === fid">
+						<image :src="fimgurl" class="user-img-l"></image>
 						<view class="message" v-if="item.types == 0">
 							<view class="msg-text">{{item.message}}</view>
 						</view>
@@ -52,8 +52,8 @@
 							</view>
 						</view>
 					</view>
-					<view class="msg-m msg-right" v-if="item.id =='b'">
-						<image :src="item.imgurl" class="user-img"></image>
+					<view class="msg-m msg-right" v-else>
+						<image :src="uimgurl" class="user-img-r"></image>
 						<!-- 文字 -->
 						<view class="message" v-if="item.types == 0">
 							<view class="msg-text">{{item.message}}</view>
@@ -93,7 +93,7 @@
 
 <script>
 	import datas from '../../commons/js/datas.js'
-	import myfun from '../../commons/js/myfun.js'
+	import utils from '../../commons/js/utils.js'
 	import submit from '../../components/submit/Submit.vue'
 	const innerAudioContext = uni.createInnerAudioContext();
 	export default {
@@ -131,12 +131,14 @@
 			this.fid = info.id;
 			this.fname = info.name;
 			this.fimgurl = this.$ajax.baseUrl + '/upload/user/' + info.imgurl;
+			this.uimgurl = this.$ajax.baseUrl + '/upload/user/' + uni.getStorageSync('userinfo').imgurl
+			this.uid = uni.getStorageSync('userinfo').id
 			//console.log(e)
-			console.log(	this.fid,
-			this.fname ,
-			this.fimgurl )
+			console.log(this.fid,
+				this.fname,
+				this.fimgurl)
 			this.getStorages()
-			this.getMsg1();
+			this.getMsg();
 
 			this.nextPage();
 			//this.goBottom()
@@ -170,22 +172,21 @@
 					url: '../groupHome/groupHome?gid=' + this.fid + '&gimg' + this.fimgurl,
 				})
 			},
-			//接收数据
-			inputs(e) {
+			// type:0 自己发送的 1：接收到的
+			receivedMsg(e,id,type){
 				this.swanition = true
 				let len = this.msgs.length;
 				let nowTime = new Date()
-				let t = myfun.spaceTime(this.oldTime, nowTime);
+				let t = utils.spaceTime(this.oldTime, nowTime);
 				if (t) {
 					this.oldTime = t;
 				}
 				nowTime = t;
 				let data = {
-					id: 'b',
-					imgurl: '../../static/images/img/two.png',
+					id: id,
 					message: e.message,
 					types: e.types,
-					time: new Date(),
+					sendtime: t,
 					tip: len,
 				};
 				this.msgs.push(data);
@@ -197,30 +198,34 @@
 					this.imgMsg.push(e.message)
 				}
 			},
+			//接收数据
+			inputs(e) {
+				this.receivedMsg(e,this.uid,0)
+			},
 			//滚动顶部加载下一页
 			nextPage() {
 				if (this.nowpage > 0 && this.beginloading) {
-				this.isloading = false
-				//禁止重复加载
-				this.beginloading = false
-				var animation = uni.createAnimation({
-					duration: 1000,
-					timingFunction: 'step-start',
-				})
+					this.isloading = false
+					//禁止重复加载
+					this.beginloading = false
+					var animation = uni.createAnimation({
+						duration: 1000,
+						timingFunction: 'step-start',
+					})
 
-				this.animation = animation
+					this.animation = animation
 
-				let i = 1;
-				this.loading = setInterval(function() {
-					animation.rotate(i * 30).step()
-					this.animationData = animation.export()
-					i++;
-					//获取聊天数据
-					if (i > 20) {
-						this.getMsg1(this.nowpage)
-					}
+					let i = 1;
+					this.loading = setInterval(function() {
+						animation.rotate(i * 30).step()
+						this.animationData = animation.export()
+						i++;
+						//获取聊天数据
+						if (i > 20) {
+							this.getMsg(this.nowpage)
+						}
 
-				}.bind(this), 100)
+					}.bind(this), 100)
 				}
 			},
 			//输入框高度
@@ -265,83 +270,98 @@
 			},
 			//处理时间
 			changeTime: function(date) {
-				return myfun.dateTime1(date);
+				return utils.dateTime1(date);
 			},
 			//获取数据
-			getMsg: function(page) {
-				uni.request({
-					url: this.serverUrl + '/chat/msg',
-					data: {
-						uid: this.uid,
-						fid: this.fid,
-						nowPage: this.nowpage,
-						pageSize: this.pagesize,
-						token: this.token
-					},
-					method: 'POST',
-					success: (data) => {
-						let status = data.data.status;
-						//访问后端成功
-						if (status == 200) {
-							let res = data.data.result;
-							console.log(res);
-							if (res.length > 0) {
-
-
-							} else {}
-
-							//console.log(res);
-						} else if (status == 500) {
-							uni.showToast({
-								title: '服务器出错啦！',
-								icon: 'none',
-								duration: 2000
-							})
-						} else if (status == 300) {
-							uni.navigateTo({
-								url: '../login/login?name=' + this.myname,
-							})
-						}
-					}
-				})
-
-			},
-			//获取数据
-			getMsg1: function(page=0) {
+			getMsg: function(page = 0) {
 				if (page === -1) {
 					clearInterval(this.loading)
 					this.isloading = true
 				} else {
-					let msg = datas.message();
-					let maxLen = msg.length
-					if (maxLen > (page + 1) * 10) {
-						maxLen = (page + 1) * 10
-						this.nowpage++
-					} else {
-						this.nowpage = -1
+					const params = {
+						uid: uni.getStorageSync('userinfo').id,
+						fid: this.fid,
+						nowPage: page,
+						pageSize: this.pagesize
 					}
-					for (let i = 10 * page; i < maxLen; i++) {
-						msg[i].imgurl = '../../static/images/img/' + msg[i].imgurl;
-						//时间间隔
-						if (i < msg.length - 1) {
-							let t = myfun.spaceTime(this.oldTime, msg[i].time);
-							if (t) {
-								this.oldTime = t;
+					this.$ajax.baseRequest({
+						url: '/chat/getMsg',
+						method: 'post'
+					}, params).then(res => {
+						// 成功则跳转到登录
+						if (res.status == 200) {
+							if (res.result.length > 0) {
+								const data = res.result
+								data.reverse()
+								let oldTime = data[0].sendtime
+								let msgImgList = []
+								for (let i = 1; i < data.length; i++) {
+									// data[i].imgurl = this.$ajax.baseUrl + '/upload/user/' + data[i].imgurl;
+									//时间间隔
+									if (i < data.length - 1) {
+										let t = utils.spaceTime(oldTime, data[i].sendtime);
+										if (t) {
+											oldTime = t;
+										}
+										data[i].sendtime = t;
+									}
+									if (data[i].types == 1) {
+										data[i].message = this.$ajax.baseUrl + data[i].message;
+										msgImgList.push(data[i].message)
+										// this.imgMsg.unshift(data[i].message);
+									}
+									//this.msgs.unshift(data[i])
+								}
+								this.imgMsg = msgImgList.concat(this.imgMsg)
+								this.msgs = data.concat(this.msgs)
+								if (data.length === 10) {
+									this.nowpage++
+								} else {
+									this.nowpage = -1
+								}
+								clearInterval(this.loading)
+								this.isloading = true
 							}
-							msg[i].time = t;
 						}
-						if (msg[i].types == 1) {
-							msg[i].message = '../../static/images/img/' + msg[i].message;
-							this.imgMsg.unshift(msg[i].message);
-						}
-						this.msgs.unshift(msg[i])
-
-					}
-					clearInterval(this.loading)
-					this.isloading = true
-					console.log(this.msgs)
+					})
 				}
 			},
+			//获取数据
+			// getMsg1: function(page = 0) {
+			// 	if (page === -1) {
+			// 		clearInterval(this.loading)
+			// 		this.isloading = true
+			// 	} else {
+			// 		let msg = datas.message();
+			// 		let maxLen = msg.length
+			// 		if (maxLen > (page + 1) * 10) {
+			// 			maxLen = (page + 1) * 10
+			// 			this.nowpage++
+			// 		} else {
+			// 			this.nowpage = -1
+			// 		}
+			// 		for (let i = 10 * page; i < maxLen; i++) {
+			// 			msg[i].imgurl = '../../static/images/img/' + msg[i].imgurl;
+			// 			//时间间隔
+			// 			if (i < msg.length - 1) {
+			// 				let t = utils.spaceTime(this.oldTime, msg[i].time);
+			// 				if (t) {
+			// 					this.oldTime = t;
+			// 				}
+			// 				msg[i].time = t;
+			// 			}
+			// 			if (msg[i].types == 1) {
+			// 				msg[i].message = '../../static/images/img/' + msg[i].message;
+			// 				this.imgMsg.unshift(msg[i].message);
+			// 			}
+			// 			this.msgs.unshift(msg[i])
+
+			// 		}
+			// 		clearInterval(this.loading)
+			// 		this.isloading = true
+			// 		console.log(this.msgs)
+			// 	}
+			// },
 			//预览图片
 			previewImg: function(e) {
 				let index = 0;
@@ -451,12 +471,21 @@
 				display: flex;
 				padding: 28rpx 0;
 
-				.user-img {
+				.user-img-r {
+					margin-left: 16rpx;;
 					flex: none;
 					width: 80rpx;
 					height: 80rpx;
 					border-radius: 20rpx;
 				}
+				.user-img-l {
+					margin-left: 16rpx;;
+					flex: none;
+					width: 80rpx;
+					height: 80rpx;
+					border-radius: 20rpx;
+				}
+				
 
 				.message {
 					flex: none;
@@ -471,7 +500,7 @@
 				}
 
 				.msg-img {
-					max-width: 480rpx;
+					max-width: 400rpx;
 					border-radius: 20rpx;
 				}
 

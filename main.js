@@ -4,11 +4,17 @@ import Vue from 'vue'
 import router from './router'
 
 import {RouterMount} from 'uni-simple-router';
+// 引入socket
+import io from 'weapp.socket.io'
 
 Vue.prototype.$ajax = ajax
+
 // Vue.prototype.$router = router
 Vue.config.productionTip = false
 App.mpType = 'app'
+
+Vue.prototype.$socket = io('http://192.168.0.118:8090')
+
 const app = new Vue({
     ...App
 })
