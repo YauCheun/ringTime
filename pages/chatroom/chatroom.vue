@@ -173,7 +173,7 @@
 				})
 			},
 			// type:0 自己发送的 1：接收到的
-			receivedMsg(e,id,type){
+			receivedMsg(e, id, type) {
 				this.swanition = true
 				let len = this.msgs.length;
 				let nowTime = new Date()
@@ -194,13 +194,49 @@
 				this.$nextTick(function() {
 					this.scrollToView = 'msg' + len;
 				})
-				if (e.types == 1) {
-					this.imgMsg.push(e.message)
+
+				if (e.types == 0) {
+					//文字信息
+					this.sendMsg(e)
+				} else if (e.types == 1) {
+					// this.imgMsg.push(e.message
+					const params = {
+						url: utils.fileName(new Date()),
+						name: new Date().getTime()
+					}
+					uni.uploadFile({
+						url: this.$ajax.baseUrl + "/file/upload",
+						name: "files",
+						filePath: e.message,
+						fileType: "image",
+						formData: {
+							...params
+						}, //传递参数
+						success: (res) => {
+							// console.log(JSON.parse(res.data))
+							const data = {
+								message: '/' + JSON.parse(res.data)[0].path.replaceAll('\\', '/'),
+								types: 1
+							}
+							this.sendMsg(data)
+							// /user/updateUserInfo
+							// console.log(JSON.parse(res.data))
+							// this.updateUserInfo('imgurl', JSON.parse(res.data)[0].filename)
+							// this.dataArr.cropFilePath = this.$ajax.baseUrl + '/upload/user/'+ JSON.parse(res.data)[0].filename
+							//自定义操作
+						},
+						fail(e) {
+							console.log("this is errormes " + e.message);
+						}
+					});
 				}
+			},
+			sendMsg(e) {
+				this.$socket.emit('send', e, this.uid, this.fid)
 			},
 			//接收数据
 			inputs(e) {
-				this.receivedMsg(e,this.uid,0)
+				this.receivedMsg(e, this.uid, 0)
 			},
 			//滚动顶部加载下一页
 			nextPage() {
@@ -472,20 +508,23 @@
 				padding: 28rpx 0;
 
 				.user-img-r {
-					margin-left: 16rpx;;
+					margin-left: 16rpx;
+					;
 					flex: none;
 					width: 80rpx;
 					height: 80rpx;
 					border-radius: 20rpx;
 				}
+
 				.user-img-l {
-					margin-left: 16rpx;;
+					margin-left: 16rpx;
+					;
 					flex: none;
 					width: 80rpx;
 					height: 80rpx;
 					border-radius: 20rpx;
 				}
-				
+
 
 				.message {
 					flex: none;

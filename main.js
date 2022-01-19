@@ -5,7 +5,7 @@ import router from './router'
 
 import {RouterMount} from 'uni-simple-router';
 // 引入socket
-import io from 'weapp.socket.io'
+import io from './commons/plugins/weapp.socket.io.js'
 
 Vue.prototype.$ajax = ajax
 

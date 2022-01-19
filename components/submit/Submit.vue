@@ -6,7 +6,7 @@
 					<image :src="toc"></image>
 				</view>
 				<textarea auto-height="true" class="chat-send btn" :class="{displaynone:isrecord}" @input="inputs" v-model="msg" @focus="focus"></textarea>
-				<view class="record btn" :class="{displaynone:!isrecord}" @touchstart="touchstart" @touchend="touchend" @touchmove="touchmove">按住说话</view>
+				<view class="record btn" :class="{displaynone:!isrecord}" @touchstart.stop.prevent="touchstart" @touchend.stop.prevent="touchend" @touchmove.stop.prevent="touchmove">按住说话</view>
 				<view class="bt-img" @tap="emoji">
 					<image src="../../static/images/submit/bq.png"></image>
 				</view>
@@ -85,7 +85,7 @@
 				}).exec();
 			},
 			//开始录音
-			touchstart:function(e){
+			touchstart(e){
 				console.log('开始')
 				this.voicebg = false
 				//点击时y轴位置
@@ -104,11 +104,11 @@
 				recorderManager.start()
 			},
 			//结束录音
-			touchend:function(){
-				console.log('结束')
+			touchend(){
 				clearInterval(this.timer)
 				recorderManager.stop();
-				RecorderManager.onStop(function(res){
+				recorderManager.onStop(function(res){
+					console.log('结束')
 					let data = {
 						voice:res.tempFilePath,
 						time:this.vlength

@@ -83,9 +83,20 @@
 			await this.getUserInfo()
 			await this.getFriend()
 			await this.getFriendApply()
+			await this.connectWS()
+			await this.test()
+
 			// await this.getGroup()
 		},
 		methods: {
+			connectWS() {
+				this.$socket.emit('login', this.uid)
+			},
+			test() {
+				this.$socket.on('test', data => {
+					console.log(data)
+				})
+			},
 			getUserInfo() {
 				try {
 					let userinfo = uni.getStorageSync('userinfo')
@@ -145,7 +156,6 @@
 			},
 			// 格式化时间
 			changeTime(time) {
-				console.log(utils.dateTime(time))
 				return utils.dateTime(time)
 			},
 			toSearch() {
