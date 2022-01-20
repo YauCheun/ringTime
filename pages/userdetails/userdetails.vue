@@ -297,7 +297,7 @@
 					name: new Date().getTime()
 				}
 				uni.uploadFile({
-					url: "http://192.168.0.118:3000/file/upload",
+					url: this.$ajax.baseUrl+ "/file/upload",
 					name: "files",
 					file: myfuns.base64toFile(this.dataArr.cropFilePath, new Date().getTime()),
 					fileType: "image",

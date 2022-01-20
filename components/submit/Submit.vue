@@ -107,13 +107,13 @@
 			touchend(){
 				clearInterval(this.timer)
 				recorderManager.stop();
-				recorderManager.onStop(function(res){
-					console.log('结束')
+				recorderManager.onStop(res=>{
+					console.log(res,this.voicebg)
 					let data = {
 						voice:res.tempFilePath,
 						time:this.vlength
 					}
-					if(this.voicebg){
+					if(!this.voicebg){
 						this.send(data,2);
 					}
 					//时长归位
@@ -161,7 +161,7 @@
 				console.log('1')
 			},
 			//终止录音
-			touchmove:function(){
+			touchmove(e){
 				if(this.pageY-e.changedTouches[0].pageY>100){
 					this.voicebg = true
 				}
@@ -212,6 +212,7 @@
 					message:msg,
 					types:types,
 				}
+				console.log(data)
 				this.$emit('inputs',data);
 				setTimeout(()=>{
 					this.msg = ''

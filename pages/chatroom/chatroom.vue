@@ -23,7 +23,7 @@
 					<image src="../../static/images/common/loading.png" class="loading-img" :animation="animationData">
 					</image>
 				</view>
-				<view class="chat-ls" v-for="(item,index) in msgs" :key="index" :id="'msg'+item.id">
+				<view class="chat-ls" v-for="(item,index) in msgs" :key="index" :id="'msg'+item.fromId">
 					<view class="chat-time" v-if="item.sendtime!=''">{{changeTime(item.sendtime)}}</view>
 					<view class="msg-m msg-left" v-if="item.fromId === fid">
 						<image :src="fimgurl" class="user-img-l"></image>
@@ -126,8 +126,8 @@
 			submit
 		},
 		created() {
-			console.log(this.$route)
-			const info = JSON.parse(decodeURIComponent(this.$route.query.query))
+			console.log(this.$Route.query)
+			const info = this.$Route.query
 			this.fid = info.id;
 			this.fname = info.name;
 			this.fimgurl = this.$ajax.baseUrl + '/upload/user/' + info.imgurl;
@@ -141,9 +141,16 @@
 			this.getMsg();
 
 			this.nextPage();
-			//this.goBottom()
+			this.connectWS()
+			this.$socket.on('test', res => {
+				this.receivedMsg(res.data, res.uid, 1)
+			})
+			// this.goBottom()
 		},
 		methods: {
+			connectWS() {
+				this.$socket.emit('login', this.uid)
+			},
 			getStorages: function() {
 				try {
 					const value = uni.getStorageSync('userinfo');
@@ -183,7 +190,7 @@
 				}
 				nowTime = t;
 				let data = {
-					id: id,
+					fromId: id,
 					message: e.message,
 					types: e.types,
 					sendtime: t,
@@ -194,41 +201,75 @@
 				this.$nextTick(function() {
 					this.scrollToView = 'msg' + len;
 				})
+				if (type === 0) {
 
-				if (e.types == 0) {
-					//文字信息
-					this.sendMsg(e)
-				} else if (e.types == 1) {
-					// this.imgMsg.push(e.message
-					const params = {
-						url: utils.fileName(new Date()),
-						name: new Date().getTime()
-					}
-					uni.uploadFile({
-						url: this.$ajax.baseUrl + "/file/upload",
-						name: "files",
-						filePath: e.message,
-						fileType: "image",
-						formData: {
-							...params
-						}, //传递参数
-						success: (res) => {
-							// console.log(JSON.parse(res.data))
-							const data = {
-								message: '/' + JSON.parse(res.data)[0].path.replaceAll('\\', '/'),
-								types: 1
-							}
-							this.sendMsg(data)
-							// /user/updateUserInfo
-							// console.log(JSON.parse(res.data))
-							// this.updateUserInfo('imgurl', JSON.parse(res.data)[0].filename)
-							// this.dataArr.cropFilePath = this.$ajax.baseUrl + '/upload/user/'+ JSON.parse(res.data)[0].filename
-							//自定义操作
-						},
-						fail(e) {
-							console.log("this is errormes " + e.message);
+					if (e.types == 0 || e.types == 3) {
+						//文字信息
+						this.sendMsg(e)
+					} else if (e.types == 1) {
+						// this.imgMsg.push(e.message
+						const params = {
+							url: utils.fileName(new Date()),
+							name: new Date().getTime()
 						}
-					});
+						uni.uploadFile({
+							url: this.$ajax.baseUrl + "/file/upload",
+							name: "files",
+							filePath: e.message,
+							fileType: "image",
+							formData: {
+								...params
+							}, //传递参数
+							success: (res) => {
+								// console.log(JSON.parse(res.data))
+								let result = JSON.parse(res.data)[0]
+								const data = {
+									message: result.destination.substr(1) + '/' + result.filename,
+									types: 1
+								}
+								this.sendMsg(data)
+								// /user/updateUserInfo
+								// console.log(JSON.parse(res.data))
+								// this.updateUserInfo('imgurl', JSON.parse(res.data)[0].filename)
+								// this.dataArr.cropFilePath = this.$ajax.baseUrl + '/upload/user/'+ JSON.parse(res.data)[0].filename
+								//自定义操作
+							},
+							fail(e) {
+								console.log("this is errormes " + e.message);
+							}
+						});
+					} else if (e.types == 2) {
+						// 音频
+						const params = {
+							url: utils.fileName(new Date()),
+							name: new Date().getTime()
+						}
+						uni.uploadFile({
+							url: this.$ajax.baseUrl + "/file/upload",
+							name: "files",
+							filePath: e.message.voice,
+							formData: {
+								...params
+							}, //传递参数
+							success: (res) => {
+								let result = JSON.parse(res.data)[0]
+								const data = {
+									message: result.destination.substr(1) + '/' + result.filename,
+									types: 2
+								}
+								this.sendMsg(data)
+								// /user/updateUserInfo
+								// console.log(JSON.parse(res.data))
+								// this.updateUserInfo('imgurl', JSON.parse(res.data)[0].filename)
+								// this.dataArr.cropFilePath = this.$ajax.baseUrl + '/upload/user/'+ JSON.parse(res.data)[0].filename
+								//自定义操作
+							},
+							fail(e) {
+								console.log("this is errormes " + e.message);
+							}
+						});
+					}
+
 				}
 			},
 			sendMsg(e) {
@@ -300,7 +341,7 @@
 				this.scrollToView = '';
 				this.$nextTick(function() {
 					let len = this.msgs.length - 1;
-					this.scrollToView = 'msg' + this.msgs[len].tip;
+					this.scrollToView = 'msg' + this.msgs[len].fromId;
 					console.log(this.scrollToView)
 				})
 			},
